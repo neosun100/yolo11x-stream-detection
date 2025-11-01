@@ -63,13 +63,14 @@ services:
       - NVIDIA_VISIBLE_DEVICES=all
       - STREAM_NAME=${STREAM_NAME:-cam}
     volumes:
-      - ./:/workspace
+      - ./:/workspace:ro
     depends_on:
       - rtmp
     networks:
       - yolo_net
+    working_dir: /workspace
     command: >
-      bash -lc "cd /workspace && pip install ffmpeg-python -q && while true; do
+      bash -lc "pip install ffmpeg-python -q && while true; do
         python3 scripts/yolo_pose_detector.py || true;
         echo '[yolo-pose] error or stream ended, retry in 5s...'; sleep 5;
       done"
@@ -91,13 +92,14 @@ services:
       - NVIDIA_VISIBLE_DEVICES=all
       - STREAM_NAME=${STREAM_NAME:-cam}
     volumes:
-      - ./:/workspace
+      - ./:/workspace:ro
     depends_on:
       - rtmp
     networks:
       - yolo_net
+    working_dir: /workspace
     command: >
-      bash -lc "cd /workspace && pip install ffmpeg-python -q && while true; do
+      bash -lc "pip install ffmpeg-python -q && while true; do
         python3 scripts/yolo_segment_detector.py || true;
         echo '[yolo-segment] error or stream ended, retry in 5s...'; sleep 5;
       done"
@@ -119,13 +121,14 @@ services:
       - NVIDIA_VISIBLE_DEVICES=all
       - STREAM_NAME=${STREAM_NAME:-cam}
     volumes:
-      - ./:/workspace
+      - ./:/workspace:ro
     depends_on:
       - rtmp
     networks:
       - yolo_net
+    working_dir: /workspace
     command: >
-      bash -lc "cd /workspace && pip install ffmpeg-python -q && while true; do
+      bash -lc "pip install ffmpeg-python -q && while true; do
         python3 scripts/yolo_classify_detector.py || true;
         echo '[yolo-classify] error or stream ended, retry in 5s...'; sleep 5;
       done"
@@ -147,13 +150,14 @@ services:
       - NVIDIA_VISIBLE_DEVICES=all
       - STREAM_NAME=${STREAM_NAME:-cam}
     volumes:
-      - ./:/workspace
+      - ./:/workspace:ro
     depends_on:
       - rtmp
     networks:
       - yolo_net
+    working_dir: /workspace
     command: >
-      bash -lc "cd /workspace && pip install ffmpeg-python -q && while true; do
+      bash -lc "pip install ffmpeg-python -q && while true; do
         python3 scripts/yolo_obb_detector.py || true;
         echo '[yolo-obb] error or stream ended, retry in 5s...'; sleep 5;
       done"
@@ -175,13 +179,14 @@ services:
       - NVIDIA_VISIBLE_DEVICES=all
       - STREAM_NAME=${STREAM_NAME:-cam}
     volumes:
-      - ./:/workspace
+      - ./:/workspace:ro
     depends_on:
       - rtmp
     networks:
       - yolo_net
+    working_dir: /workspace
     command: >
-      bash -lc "cd /workspace && pip install ffmpeg-python -q && while true; do
+      bash -lc "pip install ffmpeg-python -q && while true; do
         python3 scripts/yolo_count_detector.py || true;
         echo '[yolo-count] error or stream ended, retry in 5s...'; sleep 5;
       done"
@@ -203,13 +208,14 @@ services:
       - NVIDIA_VISIBLE_DEVICES=all
       - STREAM_NAME=${STREAM_NAME:-cam}
     volumes:
-      - ./:/workspace
+      - ./:/workspace:ro
     depends_on:
       - rtmp
     networks:
       - yolo_net
+    working_dir: /workspace
     command: >
-      bash -lc "cd /workspace && pip install ffmpeg-python -q && while true; do
+      bash -lc "pip install ffmpeg-python -q && while true; do
         python3 scripts/yolo_heatmap_detector.py || true;
         echo '[yolo-heatmap] error or stream ended, retry in 5s...'; sleep 5;
       done"
@@ -231,13 +237,14 @@ services:
       - NVIDIA_VISIBLE_DEVICES=all
       - STREAM_NAME=${STREAM_NAME:-cam}
     volumes:
-      - ./:/workspace
+      - ./:/workspace:ro
     depends_on:
       - rtmp
     networks:
       - yolo_net
+    working_dir: /workspace
     command: >
-      bash -lc "cd /workspace && pip install ffmpeg-python -q && while true; do
+      bash -lc "pip install ffmpeg-python -q && while true; do
         python3 scripts/yolo_speed_detector.py || true;
         echo '[yolo-speed] error or stream ended, retry in 5s...'; sleep 5;
       done"
@@ -259,13 +266,14 @@ services:
       - NVIDIA_VISIBLE_DEVICES=all
       - STREAM_NAME=${STREAM_NAME:-cam}
     volumes:
-      - ./:/workspace
+      - ./:/workspace:ro
     depends_on:
       - rtmp
     networks:
       - yolo_net
+    working_dir: /workspace
     command: >
-      bash -lc "cd /workspace && pip install ffmpeg-python -q && while true; do
+      bash -lc "pip install ffmpeg-python -q && while true; do
         python3 scripts/yolo_workout_detector.py || true;
         echo '[yolo-workout] error or stream ended, retry in 5s...'; sleep 5;
       done"
@@ -287,13 +295,14 @@ services:
       - NVIDIA_VISIBLE_DEVICES=all
       - STREAM_NAME=${STREAM_NAME:-cam}
     volumes:
-      - ./:/workspace
+      - ./:/workspace:ro
     depends_on:
       - rtmp
     networks:
       - yolo_net
+    working_dir: /workspace
     command: >
-      bash -lc "cd /workspace && pip install ffmpeg-python -q && while true; do
+      bash -lc "pip install ffmpeg-python -q && while true; do
         python3 scripts/yolo_trackzone_detector.py || true;
         echo '[yolo-trackzone] error or stream ended, retry in 5s...'; sleep 5;
       done"
@@ -315,13 +324,14 @@ services:
       - NVIDIA_VISIBLE_DEVICES=all
       - STREAM_NAME=${STREAM_NAME:-cam}
     volumes:
-      - ./:/workspace
+      - ./:/workspace:ro
     depends_on:
       - rtmp
     networks:
       - yolo_net
+    working_dir: /workspace
     command: >
-      bash -lc "cd /workspace && pip install ffmpeg-python -q && while true; do
+      bash -lc "pip install ffmpeg-python -q && while true; do
         python3 scripts/yolo_blur_detector.py || true;
         echo '[yolo-blur] error or stream ended, retry in 5s...'; sleep 5;
       done"
