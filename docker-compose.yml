@@ -1,0 +1,331 @@
+version: "3.8"
+
+services:
+  rtmp:
+    image: alfg/nginx-rtmp
+    container_name: rtmp
+    ports:
+      - "1935:1935"   # RTMP ????
+      - "8080:80"     # HLS ????
+      - "8081:8081"   # RTMP ????????????
+    volumes:
+      - ./config/rtmp-entrypoint.sh:/entrypoint.sh:ro
+    entrypoint: ["/bin/sh", "/entrypoint.sh"]
+    restart: unless-stopped
+    environment:
+      - RTMP_PUSH_KEY=${RTMP_PUSH_KEY:-change_me_please}
+    networks:
+      - yolo_net
+
+  # ??????
+  yolo-detect:
+    image: ultralytics/ultralytics:latest
+    container_name: yolo-detect
+    runtime: nvidia
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+    ipc: host
+    shm_size: "1g"
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - STREAM_NAME=${STREAM_NAME:-cam}
+    volumes:
+      - ./:/workspace:ro
+    depends_on:
+      - rtmp
+    networks:
+      - yolo_net
+    working_dir: /workspace
+    command: >
+      bash -lc "pip install ffmpeg-python -q && while true; do
+        python3 scripts/yolo_stream_detector.py || true;
+        echo '[yolo-detect] error or stream ended, retry in 5s...'; sleep 5;
+      done"
+
+  # ????????
+  yolo-pose:
+    image: ultralytics/ultralytics:latest
+    container_name: yolo-pose
+    runtime: nvidia
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+    ipc: host
+    shm_size: "1g"
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - STREAM_NAME=${STREAM_NAME:-cam}
+    volumes:
+      - ./:/workspace
+    depends_on:
+      - rtmp
+    networks:
+      - yolo_net
+    command: >
+      bash -lc "cd /workspace && pip install ffmpeg-python -q && while true; do
+        python3 scripts/yolo_pose_detector.py || true;
+        echo '[yolo-pose] error or stream ended, retry in 5s...'; sleep 5;
+      done"
+
+  # ??????
+  yolo-segment:
+    image: ultralytics/ultralytics:latest
+    container_name: yolo-segment
+    runtime: nvidia
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+    ipc: host
+    shm_size: "1g"
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - STREAM_NAME=${STREAM_NAME:-cam}
+    volumes:
+      - ./:/workspace
+    depends_on:
+      - rtmp
+    networks:
+      - yolo_net
+    command: >
+      bash -lc "cd /workspace && pip install ffmpeg-python -q && while true; do
+        python3 scripts/yolo_segment_detector.py || true;
+        echo '[yolo-segment] error or stream ended, retry in 5s...'; sleep 5;
+      done"
+
+  # ??????
+  yolo-classify:
+    image: ultralytics/ultralytics:latest
+    container_name: yolo-classify
+    runtime: nvidia
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+    ipc: host
+    shm_size: "1g"
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - STREAM_NAME=${STREAM_NAME:-cam}
+    volumes:
+      - ./:/workspace
+    depends_on:
+      - rtmp
+    networks:
+      - yolo_net
+    command: >
+      bash -lc "cd /workspace && pip install ffmpeg-python -q && while true; do
+        python3 scripts/yolo_classify_detector.py || true;
+        echo '[yolo-classify] error or stream ended, retry in 5s...'; sleep 5;
+      done"
+
+  # ???????
+  yolo-obb:
+    image: ultralytics/ultralytics:latest
+    container_name: yolo-obb
+    runtime: nvidia
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+    ipc: host
+    shm_size: "1g"
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - STREAM_NAME=${STREAM_NAME:-cam}
+    volumes:
+      - ./:/workspace
+    depends_on:
+      - rtmp
+    networks:
+      - yolo_net
+    command: >
+      bash -lc "cd /workspace && pip install ffmpeg-python -q && while true; do
+        python3 scripts/yolo_obb_detector.py || true;
+        echo '[yolo-obb] error or stream ended, retry in 5s...'; sleep 5;
+      done"
+
+  # ??????
+  yolo-count:
+    image: ultralytics/ultralytics:latest
+    container_name: yolo-count
+    runtime: nvidia
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+    ipc: host
+    shm_size: "1g"
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - STREAM_NAME=${STREAM_NAME:-cam}
+    volumes:
+      - ./:/workspace
+    depends_on:
+      - rtmp
+    networks:
+      - yolo_net
+    command: >
+      bash -lc "cd /workspace && pip install ffmpeg-python -q && while true; do
+        python3 scripts/yolo_count_detector.py || true;
+        echo '[yolo-count] error or stream ended, retry in 5s...'; sleep 5;
+      done"
+
+  # ?????
+  yolo-heatmap:
+    image: ultralytics/ultralytics:latest
+    container_name: yolo-heatmap
+    runtime: nvidia
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+    ipc: host
+    shm_size: "1g"
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - STREAM_NAME=${STREAM_NAME:-cam}
+    volumes:
+      - ./:/workspace
+    depends_on:
+      - rtmp
+    networks:
+      - yolo_net
+    command: >
+      bash -lc "cd /workspace && pip install ffmpeg-python -q && while true; do
+        python3 scripts/yolo_heatmap_detector.py || true;
+        echo '[yolo-heatmap] error or stream ended, retry in 5s...'; sleep 5;
+      done"
+
+  # ??????
+  yolo-speed:
+    image: ultralytics/ultralytics:latest
+    container_name: yolo-speed
+    runtime: nvidia
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+    ipc: host
+    shm_size: "1g"
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - STREAM_NAME=${STREAM_NAME:-cam}
+    volumes:
+      - ./:/workspace
+    depends_on:
+      - rtmp
+    networks:
+      - yolo_net
+    command: >
+      bash -lc "cd /workspace && pip install ffmpeg-python -q && while true; do
+        python3 scripts/yolo_speed_detector.py || true;
+        echo '[yolo-speed] error or stream ended, retry in 5s...'; sleep 5;
+      done"
+
+  # ??????
+  yolo-workout:
+    image: ultralytics/ultralytics:latest
+    container_name: yolo-workout
+    runtime: nvidia
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+    ipc: host
+    shm_size: "1g"
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - STREAM_NAME=${STREAM_NAME:-cam}
+    volumes:
+      - ./:/workspace
+    depends_on:
+      - rtmp
+    networks:
+      - yolo_net
+    command: >
+      bash -lc "cd /workspace && pip install ffmpeg-python -q && while true; do
+        python3 scripts/yolo_workout_detector.py || true;
+        echo '[yolo-workout] error or stream ended, retry in 5s...'; sleep 5;
+      done"
+
+  # ??????
+  yolo-trackzone:
+    image: ultralytics/ultralytics:latest
+    container_name: yolo-trackzone
+    runtime: nvidia
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+    ipc: host
+    shm_size: "1g"
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - STREAM_NAME=${STREAM_NAME:-cam}
+    volumes:
+      - ./:/workspace
+    depends_on:
+      - rtmp
+    networks:
+      - yolo_net
+    command: >
+      bash -lc "cd /workspace && pip install ffmpeg-python -q && while true; do
+        python3 scripts/yolo_trackzone_detector.py || true;
+        echo '[yolo-trackzone] error or stream ended, retry in 5s...'; sleep 5;
+      done"
+
+  # ??????
+  yolo-blur:
+    image: ultralytics/ultralytics:latest
+    container_name: yolo-blur
+    runtime: nvidia
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+    ipc: host
+    shm_size: "1g"
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - STREAM_NAME=${STREAM_NAME:-cam}
+    volumes:
+      - ./:/workspace
+    depends_on:
+      - rtmp
+    networks:
+      - yolo_net
+    command: >
+      bash -lc "cd /workspace && pip install ffmpeg-python -q && while true; do
+        python3 scripts/yolo_blur_detector.py || true;
+        echo '[yolo-blur] error or stream ended, retry in 5s...'; sleep 5;
+      done"
+
+networks:
+  yolo_net:
+    driver: bridge

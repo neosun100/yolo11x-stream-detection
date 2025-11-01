@@ -1,0 +1,49 @@
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Docker volumes data
+data/
+*.log
+logs/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.bak
+*.backup
+*.old
+
+# Model files (optional - uncomment if you don't want to commit models)
+# *.pt
+# *.onnx
+
+# RTMP auth keys and secrets
+*secret*
+*key*
+*password*
+
+# Test files
+test_*.py
+*_test.py
