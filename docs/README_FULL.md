@@ -178,7 +178,7 @@ STREAM_NAME=cam
 
 #### 2.2 NGEX 服务器配置
 
-在 NGEX 服务器（<ngex-server-ip>）上配置：
+在 NGEX 服务器（<your-ngx-server-ip>）上配置：
 
 **添加 Stream 模块配置**（在 `/etc/nginx/nginx.conf` 开头添加）：
 
@@ -186,7 +186,7 @@ STREAM_NAME=cam
 # RTMP TCP 端口转发（Mac -> NGEX -> GPU）
 stream {
     upstream rtmp_backend {
-        server <gpu-server-ip>:1935;  # GPU 服务器 IP
+        server <your-gpu-server-ip>:1935;  # GPU 服务器 IP
     }
     
     server {
@@ -203,14 +203,14 @@ stream {
 ```nginx
 server {
     listen 443 ssl http2;
-    server_name <your-hls-domain>;
+    server_name <your-server-domain>;
     
     ssl_certificate     /etc/nginx/aws.xin.pem;
     ssl_certificate_key /etc/nginx/aws.xin.pem;
     
     # HLS 播放代理
     location / {
-        proxy_pass http://<gpu-server-ip>:8080;
+        proxy_pass http://<your-gpu-server-ip>:8080;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -349,7 +349,7 @@ ffmpeg -f avfoundation -framerate 30 -pixel_format nv12 \
   -video_size 1280x720 -i "0:" \
   -c:v libx264 -preset veryfast -tune zerolatency -pix_fmt yuv420p \
   -g 60 -b:v 3M -maxrate 3M -bufsize 6M \
-  -f flv "rtmp://<your-rtmp-domain>:1935/live/cam"
+  -f flv "rtmp://<your-server-domain>:1935/live/cam"
 ```
 
 **参数说明**：
@@ -360,7 +360,7 @@ ffmpeg -f avfoundation -framerate 30 -pixel_format nv12 \
 - `-c:v libx264`：H.264 编码
 - `-preset veryfast`：编码速度预设
 - `-b:v 3M`：视频比特率
-- `rtmp://<your-rtmp-domain>:1935/live/cam`：RTMP 推流地址
+- `rtmp://<your-server-domain>:1935/live/cam`：RTMP 推流地址
 
 **注意**：当前版本认证已临时禁用，无需密钥参数。
 
@@ -370,20 +370,20 @@ ffmpeg -f avfoundation -framerate 30 -pixel_format nv12 \
 
 ```bash
 # 原始流
-ffplay "https://<your-username>:<your-password>@<your-hls-domain>/live/cam/index.m3u8"
+ffplay "https://<your-username>:<your-password>@<your-server-domain>/live/cam/index.m3u8"
 
 # 目标检测流
-ffplay "https://<your-username>:<your-password>@<your-hls-domain>/detected/cam/index.m3u8"
+ffplay "https://<your-username>:<your-password>@<your-server-domain>/detected/cam/index.m3u8"
 
 # 姿态识别流
-ffplay "https://<your-username>:<your-password>@<your-hls-domain>/pose/cam/index.m3u8"
+ffplay "https://<your-username>:<your-password>@<your-server-domain>/pose/cam/index.m3u8"
 ```
 
 #### 使用 VLC
 
 1. 打开 VLC
 2. 选择「媒体」→「打开网络串流」
-3. 输入 URL：`https://<your-username>:<your-password>@<your-hls-domain>/detected/cam/index.m3u8`
+3. 输入 URL：`https://<your-username>:<your-password>@<your-server-domain>/detected/cam/index.m3u8`
 4. 点击「播放」
 
 #### 使用浏览器（需要支持 HLS 的播放器）
@@ -396,13 +396,13 @@ ffplay "https://<your-username>:<your-password>@<your-hls-domain>/pose/cam/index
 
 **推流**：
 ```bash
-ffmpeg ... -f flv "rtmp://<your-rtmp-domain>:1935/live/neo"
+ffmpeg ... -f flv "rtmp://<your-server-domain>:1935/live/neo"
 ```
 
 **播放**（需要设置 `STREAM_NAME=neo` 并重启检测容器）：
 ```bash
 STREAM_NAME=neo docker-compose restart ultralytics-track
-ffplay "https://<your-username>:<your-password>@<your-hls-domain>/detected/neo/index.m3u8"
+ffplay "https://<your-username>:<your-password>@<your-server-domain>/detected/neo/index.m3u8"
 ```
 
 ---
@@ -413,31 +413,31 @@ ffplay "https://<your-username>:<your-password>@<your-hls-domain>/detected/neo/i
 
 - **用户名**：`<your-username>`
 - **密码**：`<your-password>`
-- **基础域名**：`<your-hls-domain>`
+- **基础域名**：`<your-server-domain>`
 
 ### URL 格式
 
 所有流都使用统一格式：
 ```
-https://<your-username>:<your-password>@<your-hls-domain>/{流类型}/cam/index.m3u8
+https://<your-username>:<your-password>@<your-server-domain>/{流类型}/cam/index.m3u8
 ```
 
 ### 完整 URL 列表
 
 | # | 检测类型 | URL | 说明 |
 |---|---------|-----|------|
-| 1 | 原始流 | `https://<your-username>:<your-password>@<your-hls-domain>/live/cam/index.m3u8` | 无检测的原始视频 |
-| 2 | 目标检测 | `https://<your-username>:<your-password>@<your-hls-domain>/detected/cam/index.m3u8` | YOLO 对象检测 |
-| 3 | 姿态识别 | `https://<your-username>:<your-password>@<your-hls-domain>/pose/cam/index.m3u8` | 人体姿态关键点 |
-| 4 | 实例分割 | `https://<your-username>:<your-password>@<your-hls-domain>/segment/cam/index.m3u8` | 像素级分割 |
-| 5 | 图像分类 | `https://<your-username>:<your-password>@<your-hls-domain>/classify/cam/index.m3u8` | 图像分类 |
-| 6 | 旋转边界框 | `https://<your-username>:<your-password>@<your-hls-domain>/obb/cam/index.m3u8` | 旋转对象检测 |
-| 7 | 对象计数 | `https://<your-username>:<your-password>@<your-hls-domain>/count/cam/index.m3u8` | 对象数量统计 |
-| 8 | 热力图 | `https://<your-username>:<your-password>@<your-hls-domain>/heatmap/cam/index.m3u8` | 热力图可视化 |
-| 9 | 速度估计 | `https://<your-username>:<your-password>@<your-hls-domain>/speed/cam/index.m3u8` | 速度估算 |
-| 10 | 健身训练 | `https://<your-username>:<your-password>@<your-hls-domain>/workout/cam/index.m3u8` | 健身动作识别 |
-| 11 | 区域跟踪 | `https://<your-username>:<your-password>@<your-hls-domain>/trackzone/cam/index.m3u8` | 区域对象跟踪 |
-| 12 | 对象模糊 | `https://<your-username>:<your-password>@<your-hls-domain>/blur/cam/index.m3u8` | 隐私保护模糊 |
+| 1 | 原始流 | `https://<your-username>:<your-password>@<your-server-domain>/live/cam/index.m3u8` | 无检测的原始视频 |
+| 2 | 目标检测 | `https://<your-username>:<your-password>@<your-server-domain>/detected/cam/index.m3u8` | YOLO 对象检测 |
+| 3 | 姿态识别 | `https://<your-username>:<your-password>@<your-server-domain>/pose/cam/index.m3u8` | 人体姿态关键点 |
+| 4 | 实例分割 | `https://<your-username>:<your-password>@<your-server-domain>/segment/cam/index.m3u8` | 像素级分割 |
+| 5 | 图像分类 | `https://<your-username>:<your-password>@<your-server-domain>/classify/cam/index.m3u8` | 图像分类 |
+| 6 | 旋转边界框 | `https://<your-username>:<your-password>@<your-server-domain>/obb/cam/index.m3u8` | 旋转对象检测 |
+| 7 | 对象计数 | `https://<your-username>:<your-password>@<your-server-domain>/count/cam/index.m3u8` | 对象数量统计 |
+| 8 | 热力图 | `https://<your-username>:<your-password>@<your-server-domain>/heatmap/cam/index.m3u8` | 热力图可视化 |
+| 9 | 速度估计 | `https://<your-username>:<your-password>@<your-server-domain>/speed/cam/index.m3u8` | 速度估算 |
+| 10 | 健身训练 | `https://<your-username>:<your-password>@<your-server-domain>/workout/cam/index.m3u8` | 健身动作识别 |
+| 11 | 区域跟踪 | `https://<your-username>:<your-password>@<your-server-domain>/trackzone/cam/index.m3u8` | 区域对象跟踪 |
+| 12 | 对象模糊 | `https://<your-username>:<your-password>@<your-server-domain>/blur/cam/index.m3u8` | 隐私保护模糊 |
 
 ### 快速测试脚本
 
@@ -446,7 +446,7 @@ https://<your-username>:<your-password>@<your-hls-domain>/{流类型}/cam/index.
 ```bash
 #!/bin/bash
 
-BASE_URL="https://<your-username>:<your-password>@<your-hls-domain>"
+BASE_URL="https://<your-username>:<your-password>@<your-server-domain>"
 STREAM_NAME="cam"
 
 streams=(
@@ -497,7 +497,7 @@ netstat -tlnp | grep 1935
 docker logs --tail 50 rtmp
 
 # 检查 NGEX stream 配置
-ssh root@<ngex-server-ip> "nginx -t"
+ssh root@<your-ngx-server-ip> "nginx -t"
 ```
 
 **解决方法**：
@@ -719,7 +719,7 @@ docker-compose up -d
 2. **配置 NGEX**：添加 stream 模块和 HTTPS 代理配置
 3. **配置环境变量**：编辑 `.env` 文件
 4. **启动系统**：运行 `bash start.sh`
-5. **推流**：在 Mac 上使用 FFmpeg 推流到 `rtmp://<your-rtmp-domain>:1935/live/cam`
-6. **播放**：使用 `ffplay "https://<your-username>:<your-password>@<your-hls-domain>/detected/cam/index.m3u8"` 播放检测流
+5. **推流**：在 Mac 上使用 FFmpeg 推流到 `rtmp://<your-server-domain>:1935/live/cam`
+6. **播放**：使用 `ffplay "https://<your-username>:<your-password>@<your-server-domain>/detected/cam/index.m3u8"` 播放检测流
 
 享受你的实时 AI 检测系统！🚀
