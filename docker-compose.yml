@@ -5,9 +5,9 @@ services:
     image: alfg/nginx-rtmp
     container_name: rtmp
     ports:
-      - "1935:1935"   # RTMP ????
-      - "8080:80"     # HLS ????
-      - "8081:8081"   # RTMP ????????????
+      - "1935:1935"   # RTMP 推流端口
+      - "8080:80"     # HLS 播放端口
+      - "8081:8081"   # RTMP 认证回调端口（内部使用）
     volumes:
       - ./config/rtmp-entrypoint.sh:/entrypoint.sh:ro
     entrypoint: ["/bin/sh", "/entrypoint.sh"]
@@ -17,7 +17,7 @@ services:
     networks:
       - yolo_net
 
-  # ??????
+  # 目标检测服务
   yolo-detect:
     image: ultralytics/ultralytics:latest
     container_name: yolo-detect
@@ -46,7 +46,7 @@ services:
         echo '[yolo-detect] error or stream ended, retry in 5s...'; sleep 5;
       done"
 
-  # ????????
+  # 人体姿态识别服务
   yolo-pose:
     image: ultralytics/ultralytics:latest
     container_name: yolo-pose
@@ -75,7 +75,7 @@ services:
         echo '[yolo-pose] error or stream ended, retry in 5s...'; sleep 5;
       done"
 
-  # ??????
+  # 实例分割服务
   yolo-segment:
     image: ultralytics/ultralytics:latest
     container_name: yolo-segment
@@ -104,7 +104,7 @@ services:
         echo '[yolo-segment] error or stream ended, retry in 5s...'; sleep 5;
       done"
 
-  # ??????
+  # 图像分类服务
   yolo-classify:
     image: ultralytics/ultralytics:latest
     container_name: yolo-classify
@@ -133,7 +133,7 @@ services:
         echo '[yolo-classify] error or stream ended, retry in 5s...'; sleep 5;
       done"
 
-  # ???????
+  # 旋转边界框服务
   yolo-obb:
     image: ultralytics/ultralytics:latest
     container_name: yolo-obb
@@ -162,7 +162,7 @@ services:
         echo '[yolo-obb] error or stream ended, retry in 5s...'; sleep 5;
       done"
 
-  # ??????
+  # 对象计数服务
   yolo-count:
     image: ultralytics/ultralytics:latest
     container_name: yolo-count
@@ -191,7 +191,7 @@ services:
         echo '[yolo-count] error or stream ended, retry in 5s...'; sleep 5;
       done"
 
-  # ?????
+  # 热力图服务
   yolo-heatmap:
     image: ultralytics/ultralytics:latest
     container_name: yolo-heatmap
@@ -220,7 +220,7 @@ services:
         echo '[yolo-heatmap] error or stream ended, retry in 5s...'; sleep 5;
       done"
 
-  # ??????
+  # 速度估计服务
   yolo-speed:
     image: ultralytics/ultralytics:latest
     container_name: yolo-speed
@@ -249,7 +249,7 @@ services:
         echo '[yolo-speed] error or stream ended, retry in 5s...'; sleep 5;
       done"
 
-  # ??????
+  # 健身训练服务
   yolo-workout:
     image: ultralytics/ultralytics:latest
     container_name: yolo-workout
@@ -278,7 +278,7 @@ services:
         echo '[yolo-workout] error or stream ended, retry in 5s...'; sleep 5;
       done"
 
-  # ??????
+  # 区域跟踪服务
   yolo-trackzone:
     image: ultralytics/ultralytics:latest
     container_name: yolo-trackzone
@@ -307,7 +307,7 @@ services:
         echo '[yolo-trackzone] error or stream ended, retry in 5s...'; sleep 5;
       done"
 
-  # ??????
+  # 对象模糊服务
   yolo-blur:
     image: ultralytics/ultralytics:latest
     container_name: yolo-blur
